@@ -59,7 +59,7 @@ jobs:
           # Print values.yaml for debugging after changes
           echo “After modification:”
           cat docker-compose.yml
-
+          # push the update
           git add docker-compose.yml
           git commit -m "Update image tag by Github Actions Job change manifest"
           git push origin main
