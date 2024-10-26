@@ -33,3 +33,33 @@ jobs:
       - name: Push Image to Docker Hub
         run: |
           docker push distucker/spring-petclinic:${{ github.sha }}
+
+      - name: checkout infra repository
+        uses: actions/checkout@v4
+        with:
+          repository: agungardiyanta/infra-spring-petclinic
+          token: ${{ secrets.GIT_TOKEN }}
+          ref: main
+
+      - name: Modify docker-compose file
+        run: |
+          git config user.email ${{ secrets.email }}
+          git config user.name ${{ secrets.name }}
+          git pull origin
+          echo “Working Directory: $(pwd)”
+
+          # Print values.yaml for debugging before changes
+          echo “Before modification:”
+          cat docker-compose.yml
+
+          # Use sed to update the image tag in docker-compose
+          sed -i "s|image: distucker/spring-petclinic:.*|image: distucker/spring-petclinic:${{ github.sha }}|" "docker-compose.yml"
+
+
+          # Print values.yaml for debugging after changes
+          echo “After modification:”
+          cat docker-compose.yml
+
+          git add docker-compose.yml
+          git commit -m "Update image tag by Github Actions Job change manifest"
+          git push origin main
