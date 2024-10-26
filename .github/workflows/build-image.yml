@@ -63,3 +63,19 @@ jobs:
           git add docker-compose.yml
           git commit -m "Update image tag by Github Actions Job change manifest"
           git push origin main
+
+      - name: SCP Updated Docker Compose File to VM
+        run: |
+          echo "${{ secrets.VM_SSH_KEY }}" > ssh_key.pem
+          chmod 600 ssh_key.pem
+
+          scp -i ssh_key.pem -o StrictHostKeyChecking=no infra-spring-petclinic/docker-compose.yml ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }}:~/deployment/docker-compose.yaml
+      - name: SSH into VM and Deploy Stack
+        run: |
+          echo "${{ secrets.VM_SSH_KEY }}" > ssh_key.pem
+          chmod 600 ssh_key.pem
+
+          ssh -i ssh_key.pem -o StrictHostKeyChecking=no ${VM_USERNAME}@${VM_HOST} << EOF
+            cd deployment/ # Navigate to your docker-compose directory
+            docker stack deploy --compose-file docker-compose.yml petclinic
+          EOF
