@@ -75,7 +75,7 @@ jobs:
           echo "${{ secrets.VM_SSH_KEY }}" > ssh_key.pem
           chmod 600 ssh_key.pem
 
-          ssh -i ssh_key.pem -o StrictHostKeyChecking=no ${VM_USERNAME}@${VM_HOST} << EOF
-            cd deployment/ # Navigate to your docker-compose directory
+          ssh -i ssh_key.pem -o StrictHostKeyChecking=no ${{secrets.VM_USERNAME}}@${{secrets.VM_HOST}} << EOF
+            cd deployment/
             docker stack deploy --compose-file docker-compose.yml petclinic
           EOF
