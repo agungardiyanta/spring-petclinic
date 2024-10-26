@@ -41,7 +41,7 @@ jobs:
           token: ${{ secrets.GIT_TOKEN }}
           ref: main
 
-      - name: Modify docker-compose file
+      - name: Modify docker-compose file and SCP to VM
         run: |
           git config user.email ${{ secrets.email }}
           git config user.name ${{ secrets.name }}
@@ -64,12 +64,11 @@ jobs:
           git commit -m "Update image tag by Github Actions Job change manifest"
           git push origin main
 
-      - name: SCP Updated Docker Compose File to VM
-        run: |
+          # Copy the updated docker-compose file
           echo "${{ secrets.VM_SSH_KEY }}" > ssh_key.pem
           chmod 600 ssh_key.pem
+          scp -i ssh_key.pem -o StrictHostKeyChecking=no docker-compose.yml ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }}:docker-compose.yml
 
-          scp -i ssh_key.pem -o StrictHostKeyChecking=no infra-spring-petclinic/docker-compose.yml ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }}:docker-compose.yml
       - name: SSH into VM and Deploy Stack
         run: |
           echo "${{ secrets.VM_SSH_KEY }}" > ssh_key.pem
